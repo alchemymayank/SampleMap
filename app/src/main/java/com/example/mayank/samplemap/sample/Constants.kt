@@ -7,6 +7,8 @@ import android.util.Log
  */
 object Constants {
 
+    var locationRequest : Boolean = false
+
     fun showLogDebug(tag: String, message: String){
         Log.d(tag, message)
     }

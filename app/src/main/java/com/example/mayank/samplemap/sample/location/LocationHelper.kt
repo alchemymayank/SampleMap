@@ -127,8 +127,6 @@ class LocationHelper(testJobService: TestJobService, fusedLocationProviderClient
             }
         },
                 Looper.myLooper())
-        service = true
-
 
     }
 

@@ -4,6 +4,8 @@ import android.app.job.JobParameters
 import android.app.job.JobService
 import android.location.Location
 import android.widget.Toast
+import com.example.mayank.samplemap.sample.Constants
+import com.example.mayank.samplemap.sample.Constants.locationRequest
 import com.example.mayank.samplemap.sample.Constants.showLogDebug
 import com.example.mayank.samplemap.sample.location.LocationHelper
 import com.google.android.gms.location.*
@@ -43,6 +45,7 @@ class TestJobService : JobService() {
         this.jobParameters = jobParameters
         showLogDebug(TAG, "On start job called")
         locationHelper = LocationHelper(this,fusedLocationProvider, jobParameters, locationCallback)
+
 //        Toast.makeText(this, "On start job called", Toast.LENGTH_SHORT).show()
 //        jobFinished(jobParameters, false)
 
