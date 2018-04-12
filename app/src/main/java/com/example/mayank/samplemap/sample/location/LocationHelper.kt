@@ -84,6 +84,7 @@ class LocationHelper(testJobService: TestJobService, fusedLocationProviderClient
         val NEW_TAG = "onLocationChanged"
         showLogDebug(NEW_TAG, "Latitude : ${location.latitude}")
         showLogDebug(NEW_TAG, "Longitude : ${location.longitude}")
+        showLogDebug(NEW_TAG, "Bearing : ${location.bearing}")
 
         val message = "Latitude : ${location.latitude} Longitude : ${location.longitude}"
         Toast.makeText(testJobService, message, Toast.LENGTH_SHORT).show()

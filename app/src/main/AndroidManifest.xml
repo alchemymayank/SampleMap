@@ -48,7 +48,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".sample.firebasescheduler.FirebaseScheduler"
+            android:name=".sample.MyActivity"
             android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -70,7 +70,7 @@
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true"/>
 
-        <activity android:name=".sample.MyActivity" />
+        <activity android:name=".sample.firebasescheduler.FirebaseScheduler" />
         <activity android:name=".sample.location.SampleActivity"></activity>
     </application>
 

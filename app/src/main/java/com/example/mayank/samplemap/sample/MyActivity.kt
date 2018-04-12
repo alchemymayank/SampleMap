@@ -1,10 +1,13 @@
 package com.example.mayank.samplemap.sample
 
+import android.animation.ValueAnimator
 import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.animation.LinearInterpolator
 import com.example.mayank.samplemap.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -19,6 +22,17 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.ArrayList
+import com.example.mayank.samplemap.sample.animation.LatLngInterpolator
+import com.example.mayank.samplemap.sample.animation.MarkerAnimation
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.CameraPosition
+
+
+
+
+
+
 
 
 
@@ -31,6 +45,7 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     var markerPoints: ArrayList<LatLng>? = null
+    lateinit var marker : Marker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +69,8 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.uiSettings.isZoomControlsEnabled = true
 
         val myHome = LatLng(23.300796,77.397697)
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15F))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myHome))
+        cameraPosition(myHome)
+
 
 
         mMap.setOnMapClickListener { point ->
@@ -80,6 +95,7 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
             if (markerPoints?.size!! >=2){
                 val origin = markerPoints!![0]
                 val destination = markerPoints!![1]
+                marker = mMap.addMarker(MarkerOptions().position(markerPoints!![0]))
 
                 val url = getUrl(origin, destination)
                 showLogDebug(TAG, "OnMapClick : Url : $url")
@@ -87,13 +103,24 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
                 val fetchUrl = FetchUrl()
                 fetchUrl.execute(url)
 
-                mMap.addMarker(MarkerOptions().position(origin).title("Marker in Bhopal on MyHome").draggable(true))
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(15F))
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(origin))
+
+
+
+//                mMap.addMarker(MarkerOptions().position(origin).title("Marker in Bhopal on MyHome").draggable(true))
+//                mMap.animateCamera(CameraUpdateFactory.zoomTo(15F))
+//                mMap.moveCamera(CameraUpdateFactory.newLatLng(origin))
 
             }
         }
 
+    }
+
+    fun cameraPosition(latLng: LatLng){
+        showLogDebug(TAG, "Inside Camera position")
+        val cameraPosition = CameraPosition.Builder().target(latLng).tilt(60f).zoom(18f).bearing(0f).build()
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+        mMap.addMarker(MarkerOptions().title("Demo").position(latLng))
+        mMap.setPadding(0,320,0,0)
     }
 
     
@@ -139,6 +166,8 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    val mark : Marker?= null
+
     private inner class ParserTask : AsyncTask<String, Int, List<List<HashMap<String, String>>>>() {
 
 
@@ -163,7 +192,7 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
 
         override fun onPostExecute(result: List<List<HashMap<String, String>>>?) {
             super.onPostExecute(result)
-            var points : ArrayList<LatLng>
+            var points : ArrayList<LatLng>? = null
             var polyLineOptions : PolylineOptions? = null
             for (i in result?.indices!!){
                 points = ArrayList<LatLng>()
@@ -180,18 +209,74 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 polyLineOptions.addAll(points)
                 polyLineOptions.width(10F)
+                polyLineOptions.startCap(SquareCap())
+                polyLineOptions.endCap(SquareCap())
+                polyLineOptions.jointType(JointType.ROUND)
                 polyLineOptions.color(Color.BLUE)
 
                 showLogDebug(TAG, "Polyline options decodes")
             }
             if (polyLineOptions!=null){
-                mMap.addPolyline(polyLineOptions)
+                val polyLine : Polyline
+                polyLine = mMap.addPolyline(polyLineOptions)
                 showLogDebug(TAG, "Polyline added")
+//                MarkerAnimation.animateMarkerToICS(marker, markerPoints!![1], LatLngInterpolator.Linear())
+
+
+                val handler = Handler()
+                var index = -1
+                var next = 1
+                var startPosition : LatLng?= null
+                var endPosition : LatLng?= null
+                handler.postDelayed(Runnable {
+                    if (index < points?.size!!-1){
+                        index++
+                        next = index +1
+                    }
+                    if (index < points?.size!!-1){
+                        startPosition = points!![index]
+                        endPosition = points!![next]
+                    }
+                    val valueAnimator = ValueAnimator.ofFloat(0f,1f)
+                    valueAnimator.duration = 3000
+                    valueAnimator.interpolator = LinearInterpolator()
+                    valueAnimator.addUpdateListener {
+                        val v = valueAnimator.animatedFraction
+                        val lng = v * endPosition?.longitude!! + (1- v) * startPosition?.longitude!!
+                        val lat = v * endPosition?.latitude!! + (1 - v) * startPosition?.latitude!!
+                        val newPosition = LatLng(lat, lng)
+                        marker.position = newPosition
+                        marker.setAnchor(0.5F,0.5F)
+                        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.bus_top_view))
+                        marker.rotation = getBearing(startPosition!!, newPosition)
+                        marker.isFlat =true
+                        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.Builder().target(newPosition)
+                                .zoom(18f).build()))
+
+                    }
+                    valueAnimator.start()
+
+                },3000)
             }else{
                 showLogDebug(TAG, "Without Polylines")
             }
         }
 
+    }
+
+    private fun getBearing(startPosition: LatLng, newPosition: LatLng): Float {
+        val lat : Double = Math.abs(startPosition.latitude - newPosition.latitude)
+        val lng : Double = Math.abs(startPosition.longitude - newPosition.longitude)
+        if (startPosition.latitude < newPosition.latitude && startPosition.longitude < newPosition.longitude){
+            return Math.toDegrees(Math.atan(lng/lat)).toFloat()
+        }else if(startPosition.latitude >= newPosition.latitude && startPosition.longitude < newPosition.longitude){
+            return 90- Math.toDegrees(Math.atan(lng/lat) + 90).toFloat()
+        }else if(startPosition.latitude >= newPosition.latitude && startPosition.longitude >= newPosition.longitude){
+            return Math.toDegrees(Math.atan(lng/lat) + 180).toFloat()
+        }else if (startPosition.longitude >= newPosition.longitude && startPosition.latitude < newPosition.latitude){
+            return 90- Math.toDegrees(Math.atan(lng/lat) + 270).toFloat()
+        }
+        return (-1).toFloat()
     }
 
     @Throws(IOException::class)
