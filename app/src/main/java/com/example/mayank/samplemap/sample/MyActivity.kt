@@ -217,46 +217,47 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
                 showLogDebug(TAG, "Polyline options decodes")
             }
             if (polyLineOptions!=null){
-                val polyLine : Polyline
-                polyLine = mMap.addPolyline(polyLineOptions)
+                val polyLine : Polyline = mMap.addPolyline(polyLineOptions)
                 showLogDebug(TAG, "Polyline added")
-//                MarkerAnimation.animateMarkerToICS(marker, markerPoints!![1], LatLngInterpolator.Linear())
+                // Animate Marker from one point to another point
+                MarkerAnimation.animateMarkerToICS(marker, markerPoints!![1], LatLngInterpolator.Linear())
 
 
-                val handler = Handler()
-                var index = -1
-                var next = 1
-                var startPosition : LatLng?= null
-                var endPosition : LatLng?= null
-                handler.postDelayed(Runnable {
-                    if (index < points?.size!!-1){
-                        index++
-                        next = index +1
-                    }
-                    if (index < points?.size!!-1){
-                        startPosition = points!![index]
-                        endPosition = points!![next]
-                    }
-                    val valueAnimator = ValueAnimator.ofFloat(0f,1f)
-                    valueAnimator.duration = 3000
-                    valueAnimator.interpolator = LinearInterpolator()
-                    valueAnimator.addUpdateListener {
-                        val v = valueAnimator.animatedFraction
-                        val lng = v * endPosition?.longitude!! + (1- v) * startPosition?.longitude!!
-                        val lat = v * endPosition?.latitude!! + (1 - v) * startPosition?.latitude!!
-                        val newPosition = LatLng(lat, lng)
-                        marker.position = newPosition
-                        marker.setAnchor(0.5F,0.5F)
-                        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.bus_top_view))
-                        marker.rotation = getBearing(startPosition!!, newPosition)
-                        marker.isFlat =true
-                        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.Builder().target(newPosition)
-                                .zoom(18f).build()))
 
-                    }
-                    valueAnimator.start()
-
-                },3000)
+//                val handler = Handler()
+//                var index = -1
+//                var next = 1
+//                var startPosition : LatLng?= null
+//                var endPosition : LatLng?= null
+//                handler.postDelayed(Runnable {
+//                    if (index < points?.size!!-1){
+//                        index++
+//                        next = index +1
+//                    }
+//                    if (index < points?.size!!-1){
+//                        startPosition = points!![index]
+//                        endPosition = points!![next]
+//                    }
+//                    val valueAnimator = ValueAnimator.ofFloat(0f,1f)
+//                    valueAnimator.duration = 3000
+//                    valueAnimator.interpolator = LinearInterpolator()
+//                    valueAnimator.addUpdateListener {
+//                        val v = valueAnimator.animatedFraction
+//                        val lng = v * endPosition?.longitude!! + (1- v) * startPosition?.longitude!!
+//                        val lat = v * endPosition?.latitude!! + (1 - v) * startPosition?.latitude!!
+//                        val newPosition = LatLng(lat, lng)
+//                        marker.position = newPosition
+//                        marker.setAnchor(0.5F,0.5F)
+//                        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.bus_top_view))
+//                        marker.rotation = getBearing(startPosition!!, newPosition)
+//                        marker.isFlat =true
+//                        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.Builder().target(newPosition)
+//                                .zoom(15.5f).build()))
+//
+//                    }
+//                    valueAnimator.start()
+//
+//                },3000)
             }else{
                 showLogDebug(TAG, "Without Polylines")
             }
@@ -265,16 +266,16 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun getBearing(startPosition: LatLng, newPosition: LatLng): Float {
-        val lat : Double = Math.abs(startPosition.latitude - newPosition.latitude)
-        val lng : Double = Math.abs(startPosition.longitude - newPosition.longitude)
+        val lat = Math.abs(startPosition.latitude - newPosition.latitude)
+        val lng = Math.abs(startPosition.longitude - newPosition.longitude)
         if (startPosition.latitude < newPosition.latitude && startPosition.longitude < newPosition.longitude){
-            return Math.toDegrees(Math.atan(lng/lat)).toFloat()
+            return (Math.toDegrees(Math.atan(lng/lat))).toFloat()
         }else if(startPosition.latitude >= newPosition.latitude && startPosition.longitude < newPosition.longitude){
-            return 90- Math.toDegrees(Math.atan(lng/lat) + 90).toFloat()
+            return (90- Math.toDegrees(Math.atan(lng/lat) + 90)).toFloat()
         }else if(startPosition.latitude >= newPosition.latitude && startPosition.longitude >= newPosition.longitude){
-            return Math.toDegrees(Math.atan(lng/lat) + 180).toFloat()
+            return (Math.toDegrees(Math.atan(lng/lat) + 180)).toFloat()
         }else if (startPosition.longitude >= newPosition.longitude && startPosition.latitude < newPosition.latitude){
-            return 90- Math.toDegrees(Math.atan(lng/lat) + 270).toFloat()
+            return (90- Math.toDegrees(Math.atan(lng/lat) + 270)).toFloat()
         }
         return (-1).toFloat()
     }
