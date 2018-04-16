@@ -9,6 +9,8 @@ object Constants {
 
     var locationRequest : Boolean = false
 
+    var API_BASE_ADDRESS = "https://googleapis.com/"
+
     fun showLogDebug(tag: String, message: String){
         Log.d(tag, message)
     }

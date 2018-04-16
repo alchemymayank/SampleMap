@@ -23,7 +23,7 @@ object MarkerAnimation {
         val handler = Handler()
         val start = SystemClock.uptimeMillis()
         val interpolator = AccelerateDecelerateInterpolator()
-        val durationInMs = 3000f
+        val durationInMs = 500f
 
         handler.post(object : Runnable {
             internal var elapsed: Long = 0
@@ -36,7 +36,7 @@ object MarkerAnimation {
                 t = elapsed / durationInMs
                 v = interpolator.getInterpolation(t)
 
-                marker.setPosition(latLngInterpolator.interpolate(v, startPosition, finalPosition))
+                marker.position = latLngInterpolator.interpolate(v, startPosition, finalPosition)
 
                 // Repeat till progress is complete.
                 if (t < 1) {
@@ -55,7 +55,7 @@ object MarkerAnimation {
         valueAnimator.addUpdateListener { animation ->
             val v = animation.animatedFraction
             val newPosition = latLngInterpolator.interpolate(v, startPosition, finalPosition)
-            marker.setPosition(newPosition)
+            marker.position = newPosition
         }
         valueAnimator.setFloatValues(0F, 1F) // Ignored.
         valueAnimator.duration = 3000
