@@ -44,7 +44,7 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     var markerPoints: ArrayList<LatLng>? = null
 
-    var marker : Marker? = null
+    var marker: Marker? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,7 +163,6 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    val mark: Marker? = null
 
     private inner class ParserTask : AsyncTask<String, Int, List<List<HashMap<String, String>>>>() {
 
@@ -234,37 +233,24 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.animateCamera(cameraUpdate)
 
 
-
 //                MarkerAnimation.animateMarkerToGB(marker!!, markerPoints!![1], LatLngInterpolator.Linear())
 
                 val handler = Handler()
                 var index = -1
                 var next = 1
-                var startPosition : LatLng? = null
-                var endPosition : LatLng? = null
+                var startPosition: LatLng? = null
+                var endPosition: LatLng? = null
                 showLogDebug(TAG, "Points size : ${points.size}")
-                handler.postDelayed(object :Runnable{
+                handler.postDelayed(object : Runnable {
                     override fun run() {
-                        if (index < points!!.size-1){
-
-
-                            showLogDebug(TAG, "Before Index : $index")
-
+                        if (index < points!!.size - 1) {
                             index++
-                            //next = index + 1
                             startPosition = points!![index]
                             endPosition = points!![index]
 
                             showLogDebug(TAG, "After Index : $index")
-
-                            val currentPosition : LatLng = marker?.position!!
-
-
-
-
-
                             marker?.rotation = getBearings(marker?.position!!, endPosition!!).toFloat()
-                            marker!!.setAnchor(0.5F,0.5F)
+                            marker!!.setAnchor(0.5F, 0.5F)
                             marker?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.bus_top_view))
                             MarkerAnimation.animateMarkerToGB(marker!!, endPosition!!, LatLngInterpolator.Linear())
 
@@ -324,16 +310,18 @@ class MyActivity : AppCompatActivity(), OnMapReadyCallback {
 
 }
 
-
+// Formula Degree to radian
 private fun degreeToRadians(latLong: Double): Double {
     return Math.PI * latLong / 180.0
 }
 
+// Formula radion to degree
 private fun radiansToDegree(latLong: Double): Double {
     return latLong * 180.0 / Math.PI
 }
+
 // Calculation Exact bearing between two locations
-fun getBearings(source : LatLng, destination :LatLng): Double {
+fun getBearings(source: LatLng, destination: LatLng): Double {
 
     val lat1 = source.latitude
     val lng1 = source.longitude
@@ -357,26 +345,6 @@ fun getBearings(source : LatLng, destination :LatLng): Double {
         360 + degree
     }
 }
-
-
-// Not Working Properly
-//private fun getBearing(startPosition: LatLng, newPosition: LatLng): Float {
-//    val lat = Math.abs(startPosition.latitude - newPosition.latitude)
-//    val lng = Math.abs(startPosition.longitude - newPosition.longitude)
-//    if (startPosition.latitude < newPosition.latitude && startPosition.longitude < newPosition.longitude) {
-//        return (Math.toDegrees(Math.atan(lng / lat))).toFloat()
-//    } else if (startPosition.latitude >= newPosition.latitude && startPosition.longitude < newPosition.longitude) {
-//        return (90 - Math.toDegrees(Math.atan(lng / lat) + 90)).toFloat()
-//    } else if (startPosition.latitude >= newPosition.latitude && startPosition.longitude >= newPosition.longitude) {
-//        return (Math.toDegrees(Math.atan(lng / lat) + 180)).toFloat()
-//    } else if (startPosition.longitude >= newPosition.longitude && startPosition.latitude < newPosition.latitude) {
-//        return (90 - Math.toDegrees(Math.atan(lng / lat) + 270)).toFloat()
-//    }
-//    return (-1).toFloat()
-//}
-
-
-
 
 @Throws(IOException::class)
 private fun downloadUrl(url: String): String {
